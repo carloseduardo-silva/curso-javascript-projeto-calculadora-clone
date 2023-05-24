@@ -25,20 +25,43 @@ class CalcController {
 
 
     }
+    /* criação de um metodo o qual esta disposto a ouvir e acionar mais de um evento em prol da otimização do codigo, pode ser util em diversos code. */
+
+    addEventListenerAll(el, events, fn){
+        
+        let myArray = events.split(" ")
+        
+
+        myArray.forEach(evento  => {
+            
+            el.addEventListener(evento, fn, false)
+        })
+        
+
+
+
+    }
+
+
 
     initButtonsEvents(){
        let buttons = document.querySelectorAll("#buttons > g, #parts > g");
      
         
-
         buttons.forEach((btn, index)=>{
 
-            btn.addEventListener('click', (e) => {
+            this.addEventListenerAll(btn, 'click drag', (e) => {
 
-                console.log(e);
+                console.log(btn.className.baseVal.replace('btn-', ""));
             })
         
+
+            this.addEventListenerAll(btn, "mouseover mouseup mousedown", e =>{
+                btn.style.cursor = 'pointer'
+            })
        });
+
+
       
     }
 
