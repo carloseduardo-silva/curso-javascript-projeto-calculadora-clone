@@ -111,7 +111,6 @@ class CalcController {
     }
 
     setLastOperation(value){
-   
             return  this._operation[this._operation.length - 1] = value;
       
         
@@ -121,6 +120,64 @@ class CalcController {
 
     isOperator(value){
         return( ["+", "-", "*", "/","%"].indexOf(value) > -1)
+
+    }
+
+    pushOperator(value){
+        this._operation.push(value)
+
+        if(this._operation.length > 3){
+
+            this.calc();
+        }
+    }
+    // função a qual é acionada quando a presença de 3 el no array (2numeros e um operador), realizando o calculo e armazenando o resultado.
+    calc(){
+            
+
+            let last = this._operation.pop() // armazena o ultimo operador digitado para jogar na proxima operação
+
+            if(this.isOperator(last)){
+
+
+                let firstOp = this._operation.join(" ")
+                let result = eval(firstOp)
+    
+                this._operation = [result, last]; // novo array com a primeira op realizada e o sinal digitado pronto para a proxima operação
+    
+    
+                console.log(result)
+                console.log(this._operation)
+                this.setLastNumberToDisplay()
+            }
+            else if (last = "="){
+                let firstOp = this._operation.join(" ")
+                let result = eval(firstOp)
+    
+                this._operation = [result];
+                console.log(result)
+                console.log(this._operation)
+                this.setLastNumberToDisplay()
+
+            }
+
+
+    }
+
+    setLastNumberToDisplay(){
+        let lastNumber;
+        for(let i= this._operation.length-1; i >= 0; i--){
+
+            if(!this.isOperator(this._operation[i])){
+                 lastNumber = this._operation[i]
+                break;
+
+            }
+
+        }
+        this.displayCalc = lastNumber
+            
+        
 
     }
 
@@ -140,21 +197,32 @@ class CalcController {
 
            }
            else if(isNaN(value)){
-            // caso for apertado ponto ou igual
-            console.log(value)
+                // caso for apertado ponto ou igual
+
            }
            else{
-            //caso for o primeiro numero apertado/adicionado ao array
-            this._operation.push(value)
+                //caso for o primeiro numero apertado/adicionado ao array
+                this.pushOperator(value)
+                this.setLastNumberToDisplay();
+
+       
            }
             
         }
         
         else{
-            if(this.isOperator(value)){
-                //caso o array estiver sem operadores aqui esta a inclusao do primeiro, o resto sera substituição de operadores o qual esta codado a funçao acima
-                this._operation.push(value)
 
+            if(this.isOperator(value)){
+                //caso o array estiver sem operadores aqui esta a inclusao do primeiro, o resto sera substituição de operadores o qual esta codado na funçao acima
+                this.pushOperator(value);
+
+
+            }
+
+            else if(value.toString() == "="){
+                this.pushOperator(value)
+                
+           
 
             }
             else{
@@ -162,17 +230,12 @@ class CalcController {
                 // caso for numero apertado
                 let numberconcatened =  this.getLastOperation().toString() + value.toString()
                 this.setLastOperation(parseInt(numberconcatened))
+                //att do display
+                this.setLastNumberToDisplay();
     
               
             }
-
-            
-            
         }
-        
-       console.log(this._operation)
-
-
     }
 
     /* metodo o qual executa e chama tanto a função dos name-buttons (operações) quanto verifica se é um numero e executa a função addOperation() */
@@ -224,7 +287,8 @@ class CalcController {
             case 'igual':
                 this.addOperation("=")
                 break
-                
+            
+            case "0":
             case "1":
             case "2":
             case "3":
