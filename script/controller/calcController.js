@@ -11,8 +11,54 @@ class CalcController {
 
         this.initialize();  
         this.initButtonsEvents();
+        this.getLastOperation();
+        
+        
+    }
+
+
+    /* metodos GET e SET -  função p/ acessar e atribuir valores nos elementos do display da calculadora
+
+
+    GET = função p/ acessar o valor no display da calculadora. */
+    get displayCalc(){
+        return this._displayCalcEl.innerHTML;
+    }
+    /* SET = função p/ atribuir valor no display da calculadora. */
+    set displayCalc(value){
+        this._displayCalcEl.innerHTML = value;
+    }
+
+
+    get currentDate(){
+        return  new Date();
+    }
+
+    set currentDate(value){
+        this._currentDate = value;
+
+    }
+
+
+    get displayDate(){
+        return this._dateEl.innerHTML;
+
+
+    } 
+    set displayDate(value){
+        return this._dateEl.innerHTML = value;
         
 
+    }
+
+
+    get displayTime(){
+        return this._timeEl.innerHTML;
+
+    }
+
+    set displayTime(value){
+        return this._timeEl.innerHTML = value;
     }
 
     initialize(){
@@ -58,10 +104,73 @@ class CalcController {
         this.displayCalc = 'ERROR'
 
     }
+    /* seleciona o ultimo valor do array dos botoes clicados */
+    getLastOperation(){
+
+       return this._operation[this._operation.length - 1]
+    }
+
+    setLastOperation(value){
+   
+            return  this._operation[this._operation.length - 1] = value;
+      
+        
+    }
+
+
+
+    isOperator(value){
+        return( ["+", "-", "*", "/","%"].indexOf(value) > -1)
+
+    }
+
     /* função a qual adiciona os valores numericos clicados á um atributo(array) = futura operação */
     addOperation(value){
-        this._operation.push(value)
-        console.log(this._operation)
+        
+        // verificação do ultimo valor clicado
+        // array vazio = valor undefined o qual torna se false no isNaN caindo no else.
+        if(isNaN(this.getLastOperation())){
+            //caso for string
+           if(this.isOperator(value)){
+            //this.operator = metodo conferidor se o value passado é ou nao um operador
+            // caso for apertado operador em seguida de operador sera substituido 
+            this.setLastOperation(value)
+            
+            
+
+           }
+           else if(isNaN(value)){
+            // caso for apertado ponto ou igual
+            console.log(value)
+           }
+           else{
+            //caso for o primeiro numero apertado/adicionado ao array
+            this._operation.push(value)
+           }
+            
+        }
+        
+        else{
+            if(this.isOperator(value)){
+                //caso o array estiver sem operadores aqui esta a inclusao do primeiro, o resto sera substituição de operadores o qual esta codado a funçao acima
+                this._operation.push(value)
+
+
+            }
+            else{
+
+                // caso for numero apertado
+                let numberconcatened =  this.getLastOperation().toString() + value.toString()
+                this.setLastOperation(parseInt(numberconcatened))
+    
+              
+            }
+
+            
+            
+        }
+        
+       console.log(this._operation)
 
 
     }
@@ -82,27 +191,39 @@ class CalcController {
                 break
             
 
-            case 'sum':
-               
+            case 'ponto':
+                this.addOperation(".")
+                break
+
+
+            case 'soma':
+                this.addOperation("+")
+               break
             
 
-            case 'subtraction':
+            case 'subtracao':
+                this.addOperation("-")
                 
+                break
+
+            case 'multiplicacao':
+                this.addOperation("*")
+                break
             
 
-            case 'multiplication':
+            case 'divisao':
+                this.addOperation("/")
                 
-            
+                break
 
-            case 'division':
+            case 'porcento':
+                this.addOperation("%")
                 
-            
+                break
 
-            case 'percent':
-                
-            
-
-            case 'equal':
+            case 'igual':
+                this.addOperation("=")
+                break
                 
             case "1":
             case "2":
@@ -135,8 +256,6 @@ class CalcController {
             this.addEventListenerAll(btn, 'click drag', (e) => {
 
                let textBtn = btn.className.baseVal.replace('btn-', "")
-               console.log(btn.className.baseVal.replace('btn-', ""));
-
                this.execBtn(textBtn)
             })
         
@@ -156,47 +275,4 @@ class CalcController {
         this.displayTime = this.currentDate.toLocaleTimeString(this._locale)
     }
 
-    /* metodos GET e SET -  função p/ acessar e atribuir valores nos elementos do display da calculadora
-
-
-    GET = função p/ acessar o valor no display da calculadora. */
-    get displayCalc(){
-        return this._displayCalcEl.innerHTML;
-    }
-    /* SET = função p/ atribuir valor no display da calculadora. */
-    set displayCalc(value){
-        this._displayCalcEl.innerHTML = value;
-    }
-
-
-    get currentDate(){
-        return  new Date();
-    }
-
-    set currentDate(value){
-        this._currentDate = value;
-
-    }
-
-
-    get displayDate(){
-        return this._dateEl.innerHTML;
-
-
-    } 
-    set displayDate(value){
-        return this._dateEl.innerHTML = value;
-        
-
-    }
-
-
-    get displayTime(){
-        return this._timeEl.innerHTML;
-
-    }
-
-    set displayTime(value){
-        return this._timeEl.innerHTML = value;
-    }
 }
