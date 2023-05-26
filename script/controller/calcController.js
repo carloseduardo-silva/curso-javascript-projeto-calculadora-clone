@@ -8,7 +8,7 @@ class CalcController {
         this._dateEl = document.querySelector("text#data");
         this._timeEl = document.querySelector("text#hora");
         this._operation = []
-        this._last = " "
+        this._lastNumber = " "
 
         this.initialize();  
         this.initButtonsEvents();
@@ -62,7 +62,7 @@ class CalcController {
     set displayTime(value){
         return this._timeEl.innerHTML = value;
     }
-
+    // tempo e data na calculadora
     initialize(){
         this.setDisplayDateTime()
 
@@ -74,6 +74,8 @@ class CalcController {
 
 
     }
+
+
     /* criação de um metodo o qual esta disposto a ouvir e acionar mais de um evento em prol da otimização do codigo, pode ser util em diversos code. */
 
     addEventListenerAll(el, events, fn){
@@ -95,6 +97,7 @@ class CalcController {
     clearAll(){
         this._operation = [];
         this.setLastNumberToDisplay()
+        this._lastNumber = " "
 
     }
     /* botao clear entry calculadora */
@@ -115,48 +118,98 @@ class CalcController {
     }
 
     setLastOperation(value){
+
             return  this._operation[this._operation.length - 1] = value;
       
-        
     }
 
-
-
+    // verifica se o valor é ou nao uma operação
     isOperator(value){
         return( ["+", "-", "*", "/","%"].indexOf(value) > -1)
 
     }
 
+    EqualRepeatOp(){
+         //execucação repetida do botao igual (retoma sempre a ultima op)
+        let doubleequal = this._operation[0] + this._lastNumber
+    
+        let newvalue =  eval(doubleequal)
+
+        this._operation[0] = newvalue
+        return newvalue
+    }
+
+    PercentRepeatOp(){
+        //execucação repetida do botao porcento
+
+        let newvalue = this._operation[0]/100
+
+        this._operation[0] = newvalue
+        return newvalue
+    }
+
+    // push de um value para o array dos numeros clicados (operation)
     pushOperator(value){
-        this._operation.push(value) 
 
-         //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (this._operation[1] == "="){
 
-            let doubleequal = this._operation[0] + this._last
-
-            let newvalue =  eval(doubleequal)
-
-            this._operation[0] = newvalue
-
-            console.log(this._operation)
-            this.displayCalc = newvalue
+        if (this._operation[0] == "="){
+            //caso for clicado = sem ter nenhum numero digitado antes, ou seja array vazio portanto nao realizara nada.
+            this.clearAll()
         }
-         //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        else if(this.isOperator(this._operation[0])){
+            // caso digitar um operador com o display/array vazio ele ira usar o valor default 0 atribuido ao operador digitado aguardando o terceiro valor da operação.
+            this._operation.unshift("0")
+            
+            
+        }
+
+        // calculo normal
+        else{
+
+            this._operation.push(value) 
+    
+             // caso o igual for o segundo item do array junto c o resul da operação ele ira repetir a ultima operação feita.
+            if (this._operation[1] == "="){
+    
+                
+                this.displayCalc =  this.EqualRepeatOp()
+                this._operation.pop()
+            }
+
+
+            else if (this._operation[1] == "%"){
+                    // caso nao houver uma ultima operação guardada ele ira zerar a operação de porcento(/100)
+                    if(this._lastNumber == " "){
+                        this.clearAll()
             
 
-        if(this._operation.length > 3){
+                } else{
+                    // caso houver operação guardada ele ira executar o porcento repeditamente.
+                    this.displayCalc = this.PercentRepeatOp()
+                    this._operation.pop()
+                }
 
-            this.calc();
+
+               
+            }
+                
+            // calculo normal
+            if(this._operation.length > 3){
+    
+                this.calc();
+            }
         }
-    }
+        }
+
+
     // função a qual é acionada quando a presença de 3 el no array (2numeros e um operador), realizando o calculo e armazenando o resultado.
 
     calc(){
 
             
             if(this._operation.length > 3){
-                this._last = this._operation.pop()
+                this._lastNumber = this._operation.pop()
                
 
             }
@@ -164,20 +217,25 @@ class CalcController {
             let firstOp = this._operation.join(" ")
             let result = eval(firstOp)
 
-
-            if(this._last == "%"){
+            // função botao porcento
+            if(this._lastNumber == "%"){
                     
                 result = result/100
+                let  lastOperationArray = firstOp.split(" ")
+                lastOperationArray.shift()
+                this._lastNumber =  lastOperationArray.join(" ")
+
                 this._operation = [result];
+
                 }
 
             else{
                  this._operation = [result]; // novo array com a primeira op realizada e o sinal digitado pronto para a proxima operação
 
                  //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                let  lastOperationArray = firstOp.split(" ")
-                lastOperationArray.shift()
-                this._last =  lastOperationArray.join(" ")
+                    let  lastOperationArray = firstOp.split(" ")
+                    lastOperationArray.shift()
+                    this._lastNumber =  lastOperationArray.join(" ")
                 
                 }
     
@@ -217,16 +275,29 @@ class CalcController {
         // array vazio = valor undefined o qual torna se false no isNaN caindo no else.
         if(isNaN(this.getLastOperation())){
             //caso for string
-           if(this.isOperator(value)){
-            //this.operator = metodo conferidor se o value passado é ou nao um operador
-            // caso for apertado operador em seguida de operador sera substituido 
-            this.setLastOperation(value)
-            
+            if(this.isOperator(value)){
+                //this.operator = metodo conferidor se o value passado é ou nao um operador
+                if(this._operation.length == false){
+                    // caso operador for o primeiro elemento a ser cliclado/adicionado no array.
+                    this._operation.push(value)
+                    this.pushOperator(value)
+
+                }
+                else{
+
+                    // caso for apertado operador em seguida de operador sera substituido 
+                    this.setLastOperation(value)}
+                    
+                
             
 
            }
-           else if(isNaN(value)){
+            else if(isNaN(value)){
                 // caso for apertado ponto ou igual
+                // caso for apertado =  com o display zerado
+                this.pushOperator(value)
+                
+                
 
            }
            else{
