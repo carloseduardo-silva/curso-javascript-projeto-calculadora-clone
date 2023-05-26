@@ -8,10 +8,12 @@ class CalcController {
         this._dateEl = document.querySelector("text#data");
         this._timeEl = document.querySelector("text#hora");
         this._operation = []
+        this._last = " "
 
         this.initialize();  
         this.initButtonsEvents();
         this.getLastOperation();
+        this.setLastNumberToDisplay();
         
         
     }
@@ -92,11 +94,13 @@ class CalcController {
     /* botao clear all calculadora */
     clearAll(){
         this._operation = [];
+        this.setLastNumberToDisplay()
 
     }
     /* botao clear entry calculadora */
     clearEntry(){
         this._operation.pop();
+        this.setLastNumberToDisplay()
     }
 
     /* metodo o qual explicita ERROR no display caso nao houver a execucação de nenhum  botao ou algum erro na leitura */
@@ -124,7 +128,22 @@ class CalcController {
     }
 
     pushOperator(value){
-        this._operation.push(value)
+        this._operation.push(value) 
+
+         //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (this._operation[1] == "="){
+
+            let doubleequal = this._operation[0] + this._last
+
+            let newvalue =  eval(doubleequal)
+
+            this._operation[0] = newvalue
+
+            console.log(this._operation)
+            this.displayCalc = newvalue
+        }
+         //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
 
         if(this._operation.length > 3){
 
@@ -132,34 +151,38 @@ class CalcController {
         }
     }
     // função a qual é acionada quando a presença de 3 el no array (2numeros e um operador), realizando o calculo e armazenando o resultado.
+
     calc(){
+
             
+            if(this._operation.length > 3){
+                this._last = this._operation.pop()
+               
 
-            let last = this._operation.pop() // armazena o ultimo operador digitado para jogar na proxima operação
-
-            if(this.isOperator(last)){
-
-
-                let firstOp = this._operation.join(" ")
-                let result = eval(firstOp)
-    
-                this._operation = [result, last]; // novo array com a primeira op realizada e o sinal digitado pronto para a proxima operação
-    
-    
-                console.log(result)
-                console.log(this._operation)
-                this.setLastNumberToDisplay()
             }
-            else if (last = "="){
-                let firstOp = this._operation.join(" ")
-                let result = eval(firstOp)
-    
+
+            let firstOp = this._operation.join(" ")
+            let result = eval(firstOp)
+
+
+            if(this._last == "%"){
+                    
+                result = result/100
                 this._operation = [result];
-                console.log(result)
-                console.log(this._operation)
-                this.setLastNumberToDisplay()
+                }
 
-            }
+            else{
+                 this._operation = [result]; // novo array com a primeira op realizada e o sinal digitado pronto para a proxima operação
+
+                 //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                let  lastOperationArray = firstOp.split(" ")
+                lastOperationArray.shift()
+                this._last =  lastOperationArray.join(" ")
+                
+                }
+    
+            
+            this.setLastNumberToDisplay()
 
 
     }
@@ -175,7 +198,13 @@ class CalcController {
             }
 
         }
-        this.displayCalc = lastNumber
+         
+        // att o display nos botoes AC e CE 
+        if(!lastNumber){
+            lastNumber = 0;
+        }
+
+        this.displayCalc = lastNumber;
             
         
 
