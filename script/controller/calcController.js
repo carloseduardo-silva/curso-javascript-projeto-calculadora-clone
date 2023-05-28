@@ -111,6 +111,13 @@ class CalcController {
         this.displayCalc = 'ERROR'
 
     }
+
+    addDotOp(value){
+
+        let lastOperation = this.getLastOperation();
+        console.log(lastOperation)
+    }
+
     /* seleciona o ultimo valor do array dos botoes clicados */
     getLastOperation(){
 
@@ -275,6 +282,7 @@ class CalcController {
         // array vazio = valor undefined o qual torna se false no isNaN caindo no else.
         if(isNaN(this.getLastOperation())){
             //caso for string
+            
             if(this.isOperator(value)){
                 //this.operator = metodo conferidor se o value passado é ou nao um operador
                 if(this._operation.length == false){
@@ -295,6 +303,7 @@ class CalcController {
             else if(isNaN(value)){
                 // caso for apertado ponto ou igual
                 // caso for apertado =  com o display zerado
+              
                 this.pushOperator(value)
                 
                 
@@ -355,7 +364,7 @@ class CalcController {
             
 
             case 'ponto':
-                this.addOperation(".")
+                this.addDotOp(".")
                 break
 
 
