@@ -2,6 +2,8 @@ class CalcController {
 
     constructor(){
         
+        this._audio = new Audio('click.mp3')
+        // classe Audio instancianda, não é nativa do js porem é integrada.
         this._locale = 'pt-BR'
         this._displayCalcEl = document.querySelector("text#display");
         this._currentDate;
@@ -9,18 +11,157 @@ class CalcController {
         this._timeEl = document.querySelector("text#hora");
         this._operation = []
         this._lastNumber = " "
+        this._lastop = " "
+        this._audioMood = false
 
         this.initialize();  
         this.initButtonsEvents();
         this.getLastOperation();
-        this.setLastNumberToDisplay();
+        this.initKeyBoard();
         
+        
+    }
+    
+    // tempo e data na calculadora
+    initialize(){
+        this.setDisplayDateTime()
+        
+        setInterval(()=>{
+            
+            this.setDisplayDateTime()
+            
+        }, 1000);
+        
+        this.setLastNumberToDisplay();
+        this.pasteFromClipboard()
+        
+        document.querySelectorAll(".btn-ac").forEach(btn=>{
+
+            btn.addEventListener("dblclick", e =>{
+                this.toggleAudio();
+            })
+        })
+
+
+    }
+
+    toggleAudio(){
+        /*if (this._audioMood){ this._audioMood = false;}
+    else{
+        this._audioMood = true;
+
+        ouuu usar ternario 
+    }*/
+        this._audioMood = !this._audioMood;
+    }
+
+    playAudio(){
+        if(this._audioMood){
+            this._audio.currentTime = 0
+            this._audio.play();
+        }
+    }
+
+
+    pasteFromClipboard(){
+
+        document.addEventListener("paste", e =>{
+
+            let text = e.clipboardData.getData('Text')
+
+            if (isNaN(text)){
+               
+                this.displayCalc = 'invalido'
+            }
+
+            else{
+                this.displayCalc = parseFloat(text);
+            }
+        })
+
+    }
+
+
+    /// *ClibBoard = area de transferencia para guardar e resgatar valores copiados.
+
+    copyToClipBoard(){
+
+        let input = document.createElement('input');
+        input.value = this.displayCalc;
+
+        document.body.appendChild(input);
+
+        input.select()
+        document.execCommand('copy')
+
+        input.remove()
+
+    }
+
+    initKeyBoard(){
+        document.addEventListener('keyup', e => {
+            
+            this.playAudio()
+            switch (e.key) {
+        
+                case "Escape":
+                    this.clearAll()
+                    break
+                   
+                case 'Backspace':
+                    this.clearEntry();
+                    break
+                
+                case '.':
+                case ',':    
+                    this.addDotOp()
+                    break
+
+                case 'Enter':
+                case '=':
+                    this.addOperation("=")
+                    break
+
+
+                case '+':
+                case '-':
+                case '*':    
+                case '/':
+                case '%':
+
+                    this.addOperation(e.key)
+                    break
+
+
+                case "0":
+                case "1":
+                case "2":
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                case "7":
+                case "8":
+                case "9":
+                    this.addOperation(parseInt(e.key))
+                    break
+
+                case "c":
+                    if (e.ctrlKey) {
+                        this.copyToClipBoard()
+                        break
+                    }
+    
+              
+            }
+    
+        })
+         
         
     }
 
 
     /* metodos GET e SET -  função p/ acessar e atribuir valores nos elementos do display da calculadora
-
 
     GET = função p/ acessar o valor no display da calculadora. */
     get displayCalc(){
@@ -28,6 +169,12 @@ class CalcController {
     }
     /* SET = função p/ atribuir valor no display da calculadora. */
     set displayCalc(value){
+
+        if(value.toString().length > 10 ){
+            this.setError();
+            return false;
+        }
+
         this._displayCalcEl.innerHTML = value;
     }
 
@@ -61,18 +208,6 @@ class CalcController {
 
     set displayTime(value){
         return this._timeEl.innerHTML = value;
-    }
-    // tempo e data na calculadora
-    initialize(){
-        this.setDisplayDateTime()
-
-        setInterval(()=>{
-
-           this.setDisplayDateTime()
-
-        }, 1000);
-
-
     }
 
 
@@ -116,11 +251,16 @@ class CalcController {
         //metodo criado para a execução do botao ponto(decimal), o qual pode se debater com 3 situações, last op (undefined, numero, operador.)
 
         let lastOperation = this.getLastOperation();
+
+        //corrigindo bug de + de 1 ponto no numero
+        if(typeof lastOperation === "string" && lastOperation.split("").indexOf(".") > -1) return;
        
+        //undefined ou operador 
         if(this.isOperator(lastOperation) || !lastOperation) {
             this._operation.push("0.")
             console.log("foiaqui")
         }
+        //numero
         else{
             this.setLastOperation(lastOperation.toString() + ".")
 
@@ -152,7 +292,6 @@ class CalcController {
         let doubleequal = this._operation[0] + this._lastNumber
     
         let newvalue =  eval(doubleequal)
-
         this._operation[0] = newvalue
         return newvalue
     }
@@ -161,7 +300,6 @@ class CalcController {
         //execucação repetida do botao porcento
 
         let newvalue = this._operation[0]/100
-
         this._operation[0] = newvalue
         return newvalue
     }
@@ -174,6 +312,8 @@ class CalcController {
             //caso for clicado = sem ter nenhum numero digitado antes, ou seja array vazio portanto nao realizara nada.
             this.clearAll()
         }
+
+   
 
         else if(this.isOperator(this._operation[0])){
             // caso digitar um operador com o display/array vazio ele ira usar o valor default 0 atribuido ao operador digitado aguardando o terceiro valor da operação.
@@ -190,9 +330,16 @@ class CalcController {
              // caso o igual for o segundo item do array junto c o resul da operação ele ira repetir a ultima operação feita.
             if (this._operation[1] == "="){
     
-                
                 this.displayCalc =  this.EqualRepeatOp()
                 this._operation.pop()
+            }
+
+            else if (this._operation[2] == "="){
+                // caso for apertado um numero, depois operador e depois 0 =   --> sera repetido o numero digitado e efetuado a operação
+                let thirdequal = this._operation[0]
+                this._operation[2] = thirdequal
+                this._operation.push("=")
+                
             }
 
 
@@ -229,9 +376,8 @@ class CalcController {
             if(this._operation.length > 3){
                 this._lastNumber = this._operation.pop()
                
-
             }
-
+            // calculo dos 3 elementos utilizando eval no array.Tostring
             let firstOp = this._operation.join(" ")
             let result = eval(firstOp)
 
@@ -270,7 +416,7 @@ class CalcController {
 
             if(!this.isOperator(this._operation[i])){
                  lastNumber = this._operation[i]
-                break;
+                 break;
 
             }
 
@@ -293,7 +439,7 @@ class CalcController {
         // verificação do ultimo valor clicado
         // array vazio = valor undefined o qual torna se false no isNaN caindo no else.
         if(isNaN(this.getLastOperation())){
-            //caso for string
+            //caso a ultima op for string(operador)
             
             if(this.isOperator(value)){
                 //this.operator = metodo conferidor se o value passado é ou nao um operador
@@ -309,33 +455,21 @@ class CalcController {
                     this.setLastOperation(value)}
                     
                 
-            
-
            }
+
             else if(isNaN(value)){
                 // caso for apertado ponto ou igual
                 // caso for apertado =  com o display zerado
-              
                 this.pushOperator(value)
-                
-                
-
            }
-
-
-         
-
-           else{
+            else{
                 //caso for o primeiro numero apertado/adicionado ao array
-                
                 this.pushOperator(value)
                 this.setLastNumberToDisplay();
-
-       
            }
             
         }
-        
+        // se nao for string, sera ou numero ou ponto ou igual.
         else{
 
             if(this.isOperator(value)){
@@ -348,18 +482,15 @@ class CalcController {
             else if(value.toString() == "="){
                 this.pushOperator(value)
                 
-           
-
             }
+
             else{
 
                 // caso for numero apertado
                 let numberconcatened =  this.getLastOperation().toString() + value.toString()
-                this.setLastOperation(parseInt(numberconcatened))
+                this.setLastOperation(numberconcatened)
                 //att do display
                 this.setLastNumberToDisplay();
-    
-              
             }
         }
     }
@@ -367,6 +498,7 @@ class CalcController {
     /* metodo o qual executa e chama tanto a função dos name-buttons (operações) quanto verifica se é um numero e executa a função addOperation() */
     execBtn(value) {
         
+        this.playAudio()
         switch (value) {
         
             case 'ac':
