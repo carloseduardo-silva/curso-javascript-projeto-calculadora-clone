@@ -112,10 +112,21 @@ class CalcController {
 
     }
 
-    addDotOp(value){
+    addDotOp(){
+        //metodo criado para a execução do botao ponto(decimal), o qual pode se debater com 3 situações, last op (undefined, numero, operador.)
 
         let lastOperation = this.getLastOperation();
-        console.log(lastOperation)
+       
+        if(this.isOperator(lastOperation) || !lastOperation) {
+            this._operation.push("0.")
+            console.log("foiaqui")
+        }
+        else{
+            this.setLastOperation(lastOperation.toString() + ".")
+
+        }
+        
+        this.setLastNumberToDisplay();
     }
 
     /* seleciona o ultimo valor do array dos botoes clicados */
@@ -126,7 +137,7 @@ class CalcController {
 
     setLastOperation(value){
 
-            return  this._operation[this._operation.length - 1] = value;
+        return  this._operation[this._operation.length - 1] = value;
       
     }
 
@@ -236,6 +247,7 @@ class CalcController {
 
                 }
 
+        
             else{
                  this._operation = [result]; // novo array com a primeira op realizada e o sinal digitado pronto para a proxima operação
 
@@ -309,8 +321,13 @@ class CalcController {
                 
 
            }
+
+
+         
+
            else{
                 //caso for o primeiro numero apertado/adicionado ao array
+                
                 this.pushOperator(value)
                 this.setLastNumberToDisplay();
 
@@ -364,7 +381,7 @@ class CalcController {
             
 
             case 'ponto':
-                this.addDotOp(".")
+                this.addDotOp()
                 break
 
 
