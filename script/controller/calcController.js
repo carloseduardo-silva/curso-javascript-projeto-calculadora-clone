@@ -312,7 +312,6 @@ class CalcController {
             //caso for clicado = sem ter nenhum numero digitado antes, ou seja array vazio portanto nao realizara nada.
             this.clearAll()
         }
-
    
 
         else if(this.isOperator(this._operation[0])){
@@ -321,6 +320,7 @@ class CalcController {
             
             
         }
+
 
         // calculo normal
         else{
