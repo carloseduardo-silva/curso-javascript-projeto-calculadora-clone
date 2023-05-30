@@ -426,7 +426,7 @@ class CalcController {
         if(!lastNumber){
             lastNumber = 0;
         }
-
+        console.log(lastNumber)
         this.displayCalc = lastNumber;
             
         
@@ -466,6 +466,7 @@ class CalcController {
                 //caso for o primeiro numero apertado/adicionado ao array
                 this.pushOperator(value)
                 this.setLastNumberToDisplay();
+                
            }
             
         }
@@ -485,7 +486,7 @@ class CalcController {
             }
 
             else{
-
+                
                 // caso for numero apertado
                 let numberconcatened =  this.getLastOperation().toString() + value.toString()
                 this.setLastOperation(numberconcatened)
