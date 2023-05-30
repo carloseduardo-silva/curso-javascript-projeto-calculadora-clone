@@ -335,7 +335,7 @@ class CalcController {
             }
 
             else if (this._operation[2] == "="){
-                // caso for apertado um numero, depois operador e depois 0 =   --> sera repetido o numero digitado e efetuado a operação
+                // caso for apertado um numero, depois operador e depois  =   --> sera repetido o numero digitado e efetuado a operação
                 let thirdequal = this._operation[0]
                 this._operation[2] = thirdequal
                 this._operation.push("=")
@@ -397,7 +397,7 @@ class CalcController {
             else{
                  this._operation = [result]; // novo array com a primeira op realizada e o sinal digitado pronto para a proxima operação
 
-                 //TENTEI AQUI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                 //armazenamento da ultima operação feita 
                     let  lastOperationArray = firstOp.split(" ")
                     lastOperationArray.shift()
                     this._lastNumber =  lastOperationArray.join(" ")
