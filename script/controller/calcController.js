@@ -258,7 +258,7 @@ class CalcController {
         //undefined ou operador 
         if(this.isOperator(lastOperation) || !lastOperation) {
             this._operation.push("0.")
-            console.log("foiaqui")
+           
         }
         //numero
         else{
