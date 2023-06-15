@@ -82,7 +82,7 @@ class CalcController {
     }
 
 
-    /// *ClibBoard = area de transferencia para guardar e resgatar valores copiados.
+    /// *ClipBoard = area de transferencia para guardar e resgatar valores copiados.
 
     copyToClipBoard(){
 
@@ -154,10 +154,7 @@ class CalcController {
     
               
             }
-    
-        })
-         
-        
+    })
     }
 
 
@@ -426,7 +423,7 @@ class CalcController {
         if(!lastNumber){
             lastNumber = 0;
         }
-        console.log(lastNumber)
+    
         this.displayCalc = lastNumber;
             
         
